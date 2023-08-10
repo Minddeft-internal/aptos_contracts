@@ -141,8 +141,8 @@ trust your your sushi_oft address.
 
     ```
     lzPayload:
-    0x00**03d330c1cd8f30bd20c294a9f2052c4c0dbeb70a6c19d83e04
-    2a8e7b25ba91ab**0000000877359400
+    0x0003d330c1cd8f30bd20c294a9f2052c4c0dbeb70a6c19d83e04
+    2a8e7b25ba91ab0000000877359400
     ```
 
     <br/>
