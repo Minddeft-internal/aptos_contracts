@@ -1,0 +1,16 @@
+[package]
+name = "SushiPhantomTypes"
+version = "0.0.1"
+
+[dependencies]
+# AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework/", rev = "83641d3f083762f31700060e5e95fbb1cbc28bf0" }
+# AptosStdlib = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-stdlib/", rev = "83641d3f083762f31700060e5e95fbb1cbc28bf0" }
+
+AptosFramework = {git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework/", rev = "72421d32d77f1877ded478e96f5b95914de1df91"}
+AptosStdlib = {git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-stdlib/", rev = "72421d32d77f1877ded478e96f5b95914de1df91"}
+
+
+[addresses]
+sushi_phantom_types = "87e6963a957aa5861d3fd9c16feebf02cf08deceac76d1d0afab61596893f0d7"
+default_admin = "44ebbe253544140a074724f25869c7d919aa4d4c8965b464c5c248e073f8caeb"
+dev = "a9a7b1b99c32741ee773d2cd1f53053bf0f20193773cc3d938d4b1343dbb4c03"

@@ -1,0 +1,14 @@
+---
+profiles:
+  default:
+    private_key: "0xa881eaa1f5863528c036b5e558b104abe320f5c91c3ae8ad4fa94be97a4adf34"
+    public_key: "0xd522e6cf9157a41638fe6a44a5ea7c4d7fd39cc89f4c515d6880103de9142e75"
+    account: 027263e7dc063ba5d87ce0d790f4268acf13dbe8793d07e4ba2f7351d4c13206
+    rest_url: "https://fullnode.testnet.aptoslabs.com"
+    faucet_url: "https://faucet.testnet.aptoslabs.com"
+  sushi_oft_admin:
+    private_key: "0x4548259411fba31306feae950f6e62cf9ff2deb89e4e4c26674c7099ba98e51a"
+    public_key: "0x9d4eb9974196fea2d8d25a1589ba8e074d463ae3e50bf514aad6e66ff63e07be"
+    account: 727fabb6a5662fb2daf4c377821ccdce7bfce6b3de82bcd367c78589d97e76c1
+    rest_url: "https://fullnode.testnet.aptoslabs.com"
+    faucet_url: "https://faucet.testnet.aptoslabs.com"
