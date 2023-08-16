@@ -1,0 +1,20 @@
+---
+profiles:
+  default:
+    private_key: "0xa07dd684dd7dd32d6afc4c283de0571e6c7071e255a1ab8a261f409dbf03bc30"
+    public_key: "0x9258e1a7ffcab3fde358532cffcdb09ac5f4efc0674da2201d75b12a7ceecdb4"
+    account: 2c967359c97aafbfc2fbfb56829303ae20434cb014bc9d1531fb9aba9cf1dd69
+    rest_url: "https://fullnode.testnet.aptoslabs.com"
+    faucet_url: "https://faucet.testnet.aptoslabs.com"
+  masterchef_upkeep_operator:
+    private_key: "0xd5d4a97037650403532c6a50acdd7982082a6c52cf0a3aac298b3d32256aaf2f"
+    public_key: "0x006c950b6cc18ee91d0d8414c141dea55f28c3d5dca79250b151b4a3d3ffcbe5"
+    account: 03d330c1cd8f30bd20c294a9f2052c4c0dbeb70a6c19d83e042a8e7b25ba91ab
+    rest_url: "https://fullnode.testnet.aptoslabs.com"
+    faucet_url: "https://faucet.testnet.aptoslabs.com"
+  msterchef_admin:
+    private_key: "0xf64e780de0d593ccd6081a4d2cce8f7a3ffcc2d30d8f2d55f1331812f341e93d"
+    public_key: "0x75a35acf9be0af1991cbe1ff18d68b6f2f96f5b910ff7c0f91fbcee38b2ccd9c"
+    account: b84d4472b7f713a88fa8f294e99af6f0300ae9b0fe3f420ffec43111c8b3cd34
+    rest_url: "https://fullnode.testnet.aptoslabs.com"
+    faucet_url: "https://faucet.testnet.aptoslabs.com"
