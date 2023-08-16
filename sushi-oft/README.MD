@@ -152,3 +152,6 @@ trust your your sushi_oft address.
 
     change the above highlighted address with your masterchef_upkeep_operator(address).
     
+    change **03d330c1cd8f30bd20c294a9f2052c4c0dbeb70a6c19d83e042a8e7b25ba91ab** with your masterchef_upkeep_operator(address).
+    
+
