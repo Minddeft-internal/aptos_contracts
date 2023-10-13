@@ -291,6 +291,9 @@ module sushi_oft::oft {
         alice: &signer,
         bob: &signer
     ) acquires OFT, OFTCap, Capabilities, EventStore {
+
+        timestamp::set_time_has_started_for_testing(aptos);
+
         oft::setup(
             aptos,
             core_resources,
@@ -325,7 +328,7 @@ module sushi_oft::oft {
         let (alice_addr, bob_addr) = (address_of(alice), address_of(bob));
         let (_alice_addr_bytes, bob_addr_bytes) = (bcs::to_bytes(&alice_addr), bcs::to_bytes(&bob_addr));
 
-        resource_account::create_resource_account(oft_origin, b"sushi-oft", x"your-authen-key");
+        resource_account::create_resource_account(oft_origin, x"1234", x"b66102ac5e5f64a4f9bff3de7abee16f0481f2379943fd2e3db91916e7d7f355");
         // init oft
         initialize(oft);
 
@@ -490,10 +493,610 @@ module sushi_oft::oft {
         assert!(get_used_cap(local_chain_id) == hard_cap, 0);
     }
 
+
+
+    //TODO:Newly created test cases
+
+    #[test(
+        aptos = @aptos_framework,
+        core_resources = @core_resources,
+        layerzero = @layerzero,
+        msglib_auth = @msglib_auth,
+        oracle = @1234,
+        relayer = @5678,
+        executor = @1357,
+        executor_auth = @executor_auth,
+        oft = @sushi_oft,
+        oft_origin = @sushi_oft_origin,
+        oft_admin = @sushi_oft_admin,
+        alice = @0xABCD,
+        bob = @0xAABB
+    )]
+    fun test_updated_hard_cap(
+        aptos: &signer,
+        core_resources: &signer,
+        layerzero: &signer,
+        msglib_auth: &signer,
+        oracle: &signer,
+        relayer: &signer,
+        executor: &signer,
+        executor_auth: &signer,
+        oft: &signer,
+        oft_origin: &signer,
+        oft_admin: &signer,
+        alice: &signer,
+        bob: &signer
+    )acquires OFT, OFTCap{
+
+        timestamp::set_time_has_started_for_testing(aptos);
+
+        oft::setup(
+            aptos,
+            core_resources,
+            &vector[
+                address_of(layerzero),
+                address_of(msglib_auth),
+                address_of(oracle),
+                address_of(relayer),
+                address_of(executor),
+                address_of(executor_auth),
+                address_of(oft),
+                address_of(alice),
+                address_of(bob),
+            ],
+        );
+
+         // prepare the endpoint
+        let local_chain_id: u64 = 20030;
+        let remote_chain_id: u64 = 20030;
+        test_helpers::setup_layerzero_for_test(
+            layerzero,
+            msglib_auth,
+            oracle,
+            relayer,
+            executor,
+            executor_auth,
+            local_chain_id,
+            remote_chain_id
+        );
+
+
+        resource_account::create_resource_account(oft_origin, x"1234", x"b66102ac5e5f64a4f9bff3de7abee16f0481f2379943fd2e3db91916e7d7f355");
+        // init oft
+        initialize(oft);
+
+        // config oft
+        let (local_oft_addr, remote_oft_addr) = (@sushi_oft, @sushi_oft);
+        let (local_oft_addr_bytes, remote_oft_addr_bytes) = (bcs::to_bytes(&local_oft_addr), bcs::to_bytes(
+            &remote_oft_addr
+        ));
+        remote::set(oft, remote_chain_id, remote_oft_addr_bytes);
+
+        // set hard_cap
+        let hard_cap = 2000;
+        set_hard_cap(oft_admin, local_chain_id, hard_cap);
+
+        // update hard_cap
+        let updated_hard_cap = 3000;
+        set_hard_cap(oft_admin, local_chain_id, updated_hard_cap);
+
+        let cap =get_hard_cap(local_chain_id);
+
+        assert!(cap == updated_hard_cap,200);
+
+
+    }
+
+    #[test(
+        aptos = @aptos_framework,
+        core_resources = @core_resources,
+        layerzero = @layerzero,
+        msglib_auth = @msglib_auth,
+        oracle = @1234,
+        relayer = @5678,
+        executor = @1357,
+        executor_auth = @executor_auth,
+        oft = @sushi_oft,
+        oft_origin = @sushi_oft_origin,
+        oft_admin = @sushi_oft_admin,
+        alice = @0xABCD,
+        bob = @0xAABB
+    )]
+    #[expected_failure(abort_code = 0)]
+    fun test_updated_hard_cap_from_non_admin_account(
+        aptos: &signer,
+        core_resources: &signer,
+        layerzero: &signer,
+        msglib_auth: &signer,
+        oracle: &signer,
+        relayer: &signer,
+        executor: &signer,
+        executor_auth: &signer,
+        oft: &signer,
+        oft_origin: &signer,
+        oft_admin: &signer,
+        alice: &signer,
+        bob: &signer
+    )acquires OFT, OFTCap{
+
+        timestamp::set_time_has_started_for_testing(aptos);
+
+        oft::setup(
+            aptos,
+            core_resources,
+            &vector[
+                address_of(layerzero),
+                address_of(msglib_auth),
+                address_of(oracle),
+                address_of(relayer),
+                address_of(executor),
+                address_of(executor_auth),
+                address_of(oft),
+                address_of(alice),
+                address_of(bob),
+            ],
+        );
+
+         // prepare the endpoint
+        let local_chain_id: u64 = 20030;
+        let remote_chain_id: u64 = 20030;
+        test_helpers::setup_layerzero_for_test(
+            layerzero,
+            msglib_auth,
+            oracle,
+            relayer,
+            executor,
+            executor_auth,
+            local_chain_id,
+            remote_chain_id
+        );
+
+
+        resource_account::create_resource_account(oft_origin, x"1234", x"b66102ac5e5f64a4f9bff3de7abee16f0481f2379943fd2e3db91916e7d7f355");
+        // init oft
+        initialize(oft);
+
+        // config oft
+        let (local_oft_addr, remote_oft_addr) = (@sushi_oft, @sushi_oft);
+        let (local_oft_addr_bytes, remote_oft_addr_bytes) = (bcs::to_bytes(&local_oft_addr), bcs::to_bytes(
+            &remote_oft_addr
+        ));
+        remote::set(oft, remote_chain_id, remote_oft_addr_bytes);
+
+        // set hard_cap
+        let hard_cap = 2000;
+        set_hard_cap(oft_origin, local_chain_id, hard_cap);
+
+    }
+
+
+    #[test(
+        aptos = @aptos_framework,
+        core_resources = @core_resources,
+        layerzero = @layerzero,
+        msglib_auth = @msglib_auth,
+        oracle = @1234,
+        relayer = @5678,
+        executor = @1357,
+        executor_auth = @executor_auth,
+        oft = @sushi_oft,
+        oft_origin = @sushi_oft_origin,
+        oft_admin = @sushi_oft_admin,
+        alice = @0xABCD,
+        bob = @0xAABB
+    )]
+    #[expected_failure(abort_code = 0)]
+    fun test_whitelist_address_from_non_admin_account(
+        aptos: &signer,
+        core_resources: &signer,
+        layerzero: &signer,
+        msglib_auth: &signer,
+        oracle: &signer,
+        relayer: &signer,
+        executor: &signer,
+        executor_auth: &signer,
+        oft: &signer,
+        oft_origin: &signer,
+        oft_admin: &signer,
+        alice: &signer,
+        bob: &signer
+    )acquires OFT{
+
+        timestamp::set_time_has_started_for_testing(aptos);
+
+        oft::setup(
+            aptos,
+            core_resources,
+            &vector[
+                address_of(layerzero),
+                address_of(msglib_auth),
+                address_of(oracle),
+                address_of(relayer),
+                address_of(executor),
+                address_of(executor_auth),
+                address_of(oft),
+                address_of(alice),
+                address_of(bob),
+            ],
+        );
+
+         // prepare the endpoint
+        let local_chain_id: u64 = 20030;
+        let remote_chain_id: u64 = 20030;
+        test_helpers::setup_layerzero_for_test(
+            layerzero,
+            msglib_auth,
+            oracle,
+            relayer,
+            executor,
+            executor_auth,
+            local_chain_id,
+            remote_chain_id
+        );
+
+
+        resource_account::create_resource_account(oft_origin, x"1234", x"b66102ac5e5f64a4f9bff3de7abee16f0481f2379943fd2e3db91916e7d7f355");
+        // init oft
+        initialize(oft);
+
+        // config oft
+        let (local_oft_addr, remote_oft_addr) = (@sushi_oft, @sushi_oft);
+        let (_, remote_oft_addr_bytes) = (bcs::to_bytes(&local_oft_addr), bcs::to_bytes(
+            &remote_oft_addr
+        ));
+        remote::set(oft, remote_chain_id, remote_oft_addr_bytes);
+
+        
+        let bob_addr = address_of(bob);
+
+        //whitelist address from non admin account
+        whitelist(oft_origin, bob_addr, true);
+
+    }
+
+
+      #[test(
+        aptos = @aptos_framework,
+        core_resources = @core_resources,
+        layerzero = @layerzero,
+        msglib_auth = @msglib_auth,
+        oracle = @1234,
+        relayer = @5678,
+        executor = @1357,
+        executor_auth = @executor_auth,
+        oft = @sushi_oft,
+        oft_origin = @sushi_oft_origin,
+        oft_admin = @sushi_oft_admin,
+        alice = @0xABCD,
+        bob = @0xAABB
+    )]
+    #[expected_failure(abort_code = 0)]
+    fun test_pause_oft_from_non_admin_account(
+        aptos: &signer,
+        core_resources: &signer,
+        layerzero: &signer,
+        msglib_auth: &signer,
+        oracle: &signer,
+        relayer: &signer,
+        executor: &signer,
+        executor_auth: &signer,
+        oft: &signer,
+        oft_origin: &signer,
+        oft_admin: &signer,
+        alice: &signer,
+        bob: &signer
+    )acquires OFT{
+
+        timestamp::set_time_has_started_for_testing(aptos);
+
+        oft::setup(
+            aptos,
+            core_resources,
+            &vector[
+                address_of(layerzero),
+                address_of(msglib_auth),
+                address_of(oracle),
+                address_of(relayer),
+                address_of(executor),
+                address_of(executor_auth),
+                address_of(oft),
+                address_of(alice),
+                address_of(bob),
+            ],
+        );
+
+         // prepare the endpoint
+        let local_chain_id: u64 = 20030;
+        let remote_chain_id: u64 = 20030;
+        test_helpers::setup_layerzero_for_test(
+            layerzero,
+            msglib_auth,
+            oracle,
+            relayer,
+            executor,
+            executor_auth,
+            local_chain_id,
+            remote_chain_id
+        );
+
+
+        resource_account::create_resource_account(oft_origin, x"1234", x"b66102ac5e5f64a4f9bff3de7abee16f0481f2379943fd2e3db91916e7d7f355");
+        // init oft
+        initialize(oft);
+
+        // config oft
+        let (local_oft_addr, remote_oft_addr) = (@sushi_oft, @sushi_oft);
+        let (_, remote_oft_addr_bytes) = (bcs::to_bytes(&local_oft_addr), bcs::to_bytes(
+            &remote_oft_addr
+        ));
+        remote::set(oft, remote_chain_id, remote_oft_addr_bytes);
+
+        //pause oft from non admin account
+        pause(oft_origin, true);
+
+    }
+
+
+     #[test(
+        aptos = @aptos_framework,
+        core_resources = @core_resources,
+        layerzero = @layerzero,
+        msglib_auth = @msglib_auth,
+        oracle = @1234,
+        relayer = @5678,
+        executor = @1357,
+        executor_auth = @executor_auth,
+        oft = @sushi_oft,
+        oft_origin = @sushi_oft_origin,
+        oft_admin = @sushi_oft_admin,
+        alice = @0xABCD,
+        bob = @0xAABB
+    )]
+    fun test_transfer_admin(
+        aptos: &signer,
+        core_resources: &signer,
+        layerzero: &signer,
+        msglib_auth: &signer,
+        oracle: &signer,
+        relayer: &signer,
+        executor: &signer,
+        executor_auth: &signer,
+        oft: &signer,
+        oft_origin: &signer,
+        oft_admin: &signer,
+        alice: &signer,
+        bob: &signer
+    )acquires OFT{
+
+        timestamp::set_time_has_started_for_testing(aptos);
+
+        oft::setup(
+            aptos,
+            core_resources,
+            &vector[
+                address_of(layerzero),
+                address_of(msglib_auth),
+                address_of(oracle),
+                address_of(relayer),
+                address_of(executor),
+                address_of(executor_auth),
+                address_of(oft),
+                address_of(alice),
+                address_of(bob),
+            ],
+        );
+
+         // prepare the endpoint
+        let local_chain_id: u64 = 20030;
+        let remote_chain_id: u64 = 20030;
+        test_helpers::setup_layerzero_for_test(
+            layerzero,
+            msglib_auth,
+            oracle,
+            relayer,
+            executor,
+            executor_auth,
+            local_chain_id,
+            remote_chain_id
+        );
+
+
+        resource_account::create_resource_account(oft_origin, x"1234", x"b66102ac5e5f64a4f9bff3de7abee16f0481f2379943fd2e3db91916e7d7f355");
+        // init oft
+        initialize(oft);
+
+        // config oft
+        let (local_oft_addr, remote_oft_addr) = (@sushi_oft, @sushi_oft);
+        let (_, remote_oft_addr_bytes) = (bcs::to_bytes(&local_oft_addr), bcs::to_bytes(
+            &remote_oft_addr
+        ));
+        remote::set(oft, remote_chain_id, remote_oft_addr_bytes);
+
+        let new_admin = address_of(oft_origin);
+
+        transfer_admin(oft_admin,new_admin);
+
+    }
+
+
+     #[test(
+        aptos = @aptos_framework,
+        core_resources = @core_resources,
+        layerzero = @layerzero,
+        msglib_auth = @msglib_auth,
+        oracle = @1234,
+        relayer = @5678,
+        executor = @1357,
+        executor_auth = @executor_auth,
+        oft = @sushi_oft,
+        oft_origin = @sushi_oft_origin,
+        oft_admin = @sushi_oft_admin,
+        alice = @0xABCD,
+        bob = @0xAABB
+    )]
+    #[expected_failure(abort_code=1)]
+    fun test_transfer_admin_to_zero_account(
+        aptos: &signer,
+        core_resources: &signer,
+        layerzero: &signer,
+        msglib_auth: &signer,
+        oracle: &signer,
+        relayer: &signer,
+        executor: &signer,
+        executor_auth: &signer,
+        oft: &signer,
+        oft_origin: &signer,
+        oft_admin: &signer,
+        alice: &signer,
+        bob: &signer
+    )acquires OFT{
+
+        timestamp::set_time_has_started_for_testing(aptos);
+
+        oft::setup(
+            aptos,
+            core_resources,
+            &vector[
+                address_of(layerzero),
+                address_of(msglib_auth),
+                address_of(oracle),
+                address_of(relayer),
+                address_of(executor),
+                address_of(executor_auth),
+                address_of(oft),
+                address_of(alice),
+                address_of(bob),
+            ],
+        );
+
+         // prepare the endpoint
+        let local_chain_id: u64 = 20030;
+        let remote_chain_id: u64 = 20030;
+        test_helpers::setup_layerzero_for_test(
+            layerzero,
+            msglib_auth,
+            oracle,
+            relayer,
+            executor,
+            executor_auth,
+            local_chain_id,
+            remote_chain_id
+        );
+
+
+        resource_account::create_resource_account(oft_origin, x"1234", x"b66102ac5e5f64a4f9bff3de7abee16f0481f2379943fd2e3db91916e7d7f355");
+        // init oft
+        initialize(oft);
+
+        // config oft
+        let (local_oft_addr, remote_oft_addr) = (@sushi_oft, @sushi_oft);
+        let (_, remote_oft_addr_bytes) = (bcs::to_bytes(&local_oft_addr), bcs::to_bytes(
+            &remote_oft_addr
+        ));
+        remote::set(oft, remote_chain_id, remote_oft_addr_bytes);
+
+        // Transfer admin to zero address
+        let new_admin = @0x0;
+
+        transfer_admin(oft_admin,new_admin);
+
+    }
+
+
+    #[test(
+        aptos = @aptos_framework,
+        core_resources = @core_resources,
+        layerzero = @layerzero,
+        msglib_auth = @msglib_auth,
+        oracle = @1234,
+        relayer = @5678,
+        executor = @1357,
+        executor_auth = @executor_auth,
+        oft = @sushi_oft,
+        oft_origin = @sushi_oft_origin,
+        oft_admin = @sushi_oft_admin,
+        alice = @0xABCD,
+        bob = @0xAABB
+    )]
+    #[expected_failure(abort_code=0)]
+    fun test_transafer_admin_from_non_admin_account(
+        aptos: &signer,
+        core_resources: &signer,
+        layerzero: &signer,
+        msglib_auth: &signer,
+        oracle: &signer,
+        relayer: &signer,
+        executor: &signer,
+        executor_auth: &signer,
+        oft: &signer,
+        oft_origin: &signer,
+        oft_admin: &signer,
+        alice: &signer,
+        bob: &signer
+    )acquires OFT{
+
+        timestamp::set_time_has_started_for_testing(aptos);
+
+        oft::setup(
+            aptos,
+            core_resources,
+            &vector[
+                address_of(layerzero),
+                address_of(msglib_auth),
+                address_of(oracle),
+                address_of(relayer),
+                address_of(executor),
+                address_of(executor_auth),
+                address_of(oft),
+                address_of(alice),
+                address_of(bob),
+            ],
+        );
+
+         // prepare the endpoint
+        let local_chain_id: u64 = 20030;
+        let remote_chain_id: u64 = 20030;
+        test_helpers::setup_layerzero_for_test(
+            layerzero,
+            msglib_auth,
+            oracle,
+            relayer,
+            executor,
+            executor_auth,
+            local_chain_id,
+            remote_chain_id
+        );
+
+
+        resource_account::create_resource_account(oft_origin, x"1234", x"b66102ac5e5f64a4f9bff3de7abee16f0481f2379943fd2e3db91916e7d7f355");
+        // init oft
+        initialize(oft);
+
+        // config oft
+        let (local_oft_addr, remote_oft_addr) = (@sushi_oft, @sushi_oft);
+        let (_, remote_oft_addr_bytes) = (bcs::to_bytes(&local_oft_addr), bcs::to_bytes(
+            &remote_oft_addr
+        ));
+        remote::set(oft, remote_chain_id, remote_oft_addr_bytes);
+
+        let new_admin = address_of(oft_origin);
+        
+        // Transfer admin from non admin account
+        transfer_admin(oft_origin,new_admin);
+
+    }
+   
+
     #[test_only]
     public fun get_used_cap(src_chain_id: u64): u64 acquires OFTCap {
         let cap = borrow_global_mut<OFTCap>(@sushi_oft);
         *table::borrow_mut_with_default(&mut cap.used, src_chain_id, 0)
+    }
+
+    #[test_only]
+    public fun get_hard_cap(src_chain_id: u64): u64 acquires OFTCap {
+        let cap = borrow_global_mut<OFTCap>(@sushi_oft);
+        *table::borrow_mut_with_default(&mut cap.hard_cap, src_chain_id, 0)
     }
 
     #[test_only]
