@@ -11,8 +11,8 @@ module sushi::swap_test {
     use sushi::math;
     use aptos_std::math64::pow;
     use sushi::swap_utils;
+    use std::debug;
 
-    
 
     const MAX_U64: u64 = 18446744073709551615;
     const MINIMUM_LIQUIDITY: u128 = 1000;
@@ -28,25 +28,12 @@ module sushi::swap_test {
         account::create_account_for_test(signer::address_of(dev));
         account::create_account_for_test(signer::address_of(admin));
         account::create_account_for_test(signer::address_of(treasury));
-        resource_account::create_resource_account(dev, b"sushi", x"");
+        resource_account::create_resource_account(dev, x"1234", x"b66102ac5e5f64a4f9bff3de7abee16f0481f2379943fd2e3db91916e7d7f355");
         initialize(resource_account);
         swap::set_fee_to(admin, signer::address_of(treasury))
     }
 
-    struct Country {
-        id: u8,
-        population: u64
-    }
-    // Country is a return type of this function!
-    public fun new_country(c_id: u8, c_population: u64): Country {
-        // structure creation is an expression
-        let country = Country {
-        id: c_id,
-        population: c_population
-        };
-        country
-    }
-   
+    
 
     #[test(dev = @dev, admin = @default_admin, resource_account = @sushi, treasury = @0x23456, bob = @0x12345, alice = @0x12346)]
     fun test_add_liquidity(
@@ -2216,5 +2203,422 @@ module sushi::swap_test {
         let liquidity = numerator / denominator;
         liquidity 
     }
+
+
+
+
+
+
+
+    //c-h
+    // #TODO:Newly Created Test Cases
+
+     #[test(dev = @dev, admin = @default_admin, resource_account = @sushi, treasury = @0x23456, bob = @0x12341)]
+    #[expected_failure(abort_code=4)]
+    fun test_add_liquidity_revert_when_no_mininum_liquidity_to_mint(
+        dev: &signer,
+        admin: &signer,
+        resource_account: &signer,
+        treasury: &signer,
+        bob: &signer,
+        
+    ) {
+        account::create_account_for_test(signer::address_of(bob));
+
+        setup_test_with_genesis(dev, admin, treasury, resource_account);
+
+        let coin_owner = test_coins::init_coins();
+
+        test_coins::register_and_mint<TestSUSHI>(&coin_owner, bob, 100 * pow(10, 8));
+        
+        test_coins::register_and_mint<TestBUSD>(&coin_owner, bob, 100 * pow(10, 8));
+
+        let bob_add_liquidity_x = 10;
+        
+        let bob_add_liquidity_y = 10;
+
+        
+        router::add_liquidity<TestBUSD, TestSUSHI>(bob, bob_add_liquidity_x, bob_add_liquidity_y, 0, 0);
+                
+    }
+
+
+    // Revert when trying to create similler pair again  
+    #[test(dev = @dev, admin = @default_admin, resource_account = @sushi, treasury = @0x23456, bob = @0x12345)]
+    #[expected_failure(abort_code= 1 )]
+    fun test_createpair_revart_if_pair_already_exsist(
+        dev: &signer,
+        admin: &signer,
+        resource_account: &signer,
+        treasury: &signer,
+        bob: &signer,
+
+    ) {
+        account::create_account_for_test(signer::address_of(bob));
+       
+        setup_test_with_genesis(dev, admin, treasury, resource_account);
+
+        let coin_owner = test_coins::init_coins();
+
+        test_coins::register_and_mint<TestSUSHI>(&coin_owner, bob, 100 * pow(10, 8));
+        test_coins::register_and_mint<TestBUSD>(&coin_owner, bob, 100 * pow(10, 8));
+        
+        router::create_pair<TestSUSHI, TestBUSD>(bob);
+        router::create_pair<TestSUSHI, TestBUSD>(bob);
+        
+    }
+
+    
+
+
+    #[test(dev = @dev, admin = @default_admin, resource_account = @sushi, treasury = @0x23456, bob = @0x12341)]
+    #[expected_failure(abort_code=2)]
+    fun test_remove_liquidity_slippage_revert(
+        dev: &signer,
+        admin: &signer,
+        resource_account: &signer,
+        treasury: &signer,
+        bob: &signer,
+        
+    ) {
+        account::create_account_for_test(signer::address_of(bob));
+
+        setup_test_with_genesis(dev, admin, treasury, resource_account);
+
+        let coin_owner = test_coins::init_coins();
+
+        test_coins::register_and_mint<TestSUSHI>(&coin_owner, bob, 100 * pow(10, 8));
+        
+        test_coins::register_and_mint<TestBUSD>(&coin_owner, bob, 100 * pow(10, 8));
+
+        let bob_add_liquidity_x = 5 * pow(10, 8);
+        
+        let bob_add_liquidity_y = 5 * pow(10, 8);
+
+        // bob provider liquidity for 5:5 SUSHI-BUSD
+        router::add_liquidity<TestBUSD, TestSUSHI>(bob, bob_add_liquidity_x, bob_add_liquidity_y, 0, 0);
+        
+        let liquidity = coin::balance<LPToken<TestBUSD, TestSUSHI>>(signer::address_of(bob));
+
+        let min_liquidity_x = 6 * pow(10, 8);
+        let min_liquidity_y = 0 * pow(10, 8);
+
+        router::remove_liquidity<TestBUSD, TestSUSHI>(bob, (liquidity as u64), min_liquidity_x,min_liquidity_y);
+        
+    }
+
+
+    #[test(dev = @dev, admin = @default_admin, resource_account = @sushi, treasury = @0x23456, bob = @0x12345)]
+    fun test_swap_exact_input_y_to_x(
+        dev: &signer,
+        admin: &signer,
+        resource_account: &signer,
+        treasury: &signer,
+        bob: &signer,
+    ) {
+        account::create_account_for_test(signer::address_of(bob));
+        
+        setup_test_with_genesis(dev, admin, treasury, resource_account);
+
+        let coin_owner = test_coins::init_coins();
+
+        test_coins::register_and_mint<TestSUSHI>(&coin_owner, bob, 100 * pow(10, 8));
+        test_coins::register_and_mint<TestBUSD>(&coin_owner, bob, 100 * pow(10, 8));
+
+        let initial_reserve_x = 10 * pow(10, 8);
+        let initial_reserve_y = 20 * pow(10, 8);
+
+        let input_x = 2 * pow(10, 8);
+        let input_y = 3 * pow(10, 8);
+
+        // bob provider liquidity for 5:10 SUSHI-BUSD
+        router::add_liquidity<TestBUSD, TestSUSHI>(bob, initial_reserve_x, initial_reserve_y, 0, 0);
+
+        let liquidity = coin::balance<LPToken<TestBUSD, TestSUSHI>>(signer::address_of(bob));
+
+
+        let amount_y_out = calc_output_using_input(input_x,initial_reserve_x,initial_reserve_y);
+
+
+        let balance_x = coin::balance<TestBUSD>(signer::address_of(bob));
+        let balance_y = coin::balance<TestSUSHI>(signer::address_of(bob));
+
+        //swap from x to y
+        router::swap_exact_input<TestBUSD, TestSUSHI>(bob, input_x, 0);
+
+        let new_balance_x = coin::balance<TestBUSD>(signer::address_of(bob));
+        let new_balance_y = coin::balance<TestSUSHI>(signer::address_of(bob));
+
+        assert!(balance_x == (new_balance_x + input_x),201);
+        assert!(balance_y == (new_balance_y - (amount_y_out as u64)),202);
+
+
+        let (reserve_x, reserve_y, _) = swap::token_reserves<TestBUSD, TestSUSHI>();
+
+        let amount_x_out = calc_output_using_input(input_y,reserve_y,reserve_x);
+
+        let balance_x = coin::balance<TestBUSD>(signer::address_of(bob));
+        let balance_y = coin::balance<TestSUSHI>(signer::address_of(bob));
+
+        // //swap from y to x
+        router::swap_exact_input<TestSUSHI, TestBUSD>(bob, input_y, 0);
+
+        let new_balance_x = coin::balance<TestBUSD>(signer::address_of(bob));
+        let new_balance_y = coin::balance<TestSUSHI>(signer::address_of(bob));
+
+        assert!(new_balance_x == (balance_x + (amount_x_out as u64)),203);
+        assert!(new_balance_y == (balance_y - (input_y as u64)),204);
+
+    }
+
+
+    #[test(dev = @dev, admin = @default_admin, resource_account = @sushi, treasury = @0x23456, bob = @0x12345, alice = @0x12346)]
+    #[expected_failure(abort_code=4)]
+    fun test_swap_exact_input_when_pair_not_exist(
+        dev: &signer,
+        admin: &signer,
+        resource_account: &signer,
+        treasury: &signer,
+        bob: &signer,
+    
+    ) {
+        account::create_account_for_test(signer::address_of(bob));
+        
+        setup_test_with_genesis(dev, admin, treasury, resource_account);
+
+        let coin_owner = test_coins::init_coins();
+
+        test_coins::register_and_mint<TestSUSHI>(&coin_owner, bob, 100 * pow(10, 8));
+        test_coins::register_and_mint<TestBUSD>(&coin_owner, bob, 100 * pow(10, 8));
+
+        let input_x = 2 * pow(10, 8);
+        
+        //swap from x to y
+        router::swap_exact_input<TestBUSD, TestSUSHI>(bob, input_x, 0);
+
+    }
+
+
+
+
+    #[test(dev = @dev, admin = @default_admin, resource_account = @sushi, treasury = @0x23456, bob = @0x12345)]
+    fun test_swap_exact_output_y_to_x(
+        dev: &signer,
+        admin: &signer,
+        resource_account: &signer,
+        treasury: &signer,
+        bob: &signer,
+
+    ) {
+        account::create_account_for_test(signer::address_of(bob));
+        
+
+        setup_test_with_genesis(dev, admin, treasury, resource_account);
+
+        let coin_owner = test_coins::init_coins();
+
+        test_coins::register_and_mint<TestSUSHI>(&coin_owner, bob, 100 * pow(10, 8));
+        test_coins::register_and_mint<TestBUSD>(&coin_owner, bob, 100 * pow(10, 8));
+        
+
+        let initial_reserve_x = 5 * pow(10, 8);
+        let initial_reserve_y = 10 * pow(10, 8);
+
+        let output_y = 166319299;
+        let output_x = 166319299;
+        let input_x_max = 1 * pow(10, 8);
+        let input_y_max = 5 * pow(10, 8);
+
+        // bob provider liquidity for 5:10 SUSHI-BUSD
+        router::add_liquidity<TestBUSD, TestSUSHI>(bob, initial_reserve_x, initial_reserve_y, 0, 0);
+        
+
+        let bob_token_x_before_swap = coin::balance<TestBUSD>(signer::address_of(bob));
+        let bob_token_y_before_swap = coin::balance<TestSUSHI>(signer::address_of(bob));
+
+        //swap x to y
+        router::swap_exact_output<TestBUSD, TestSUSHI>(bob, output_y, input_x_max);
+
+        let bob_token_x_after_swap = coin::balance<TestBUSD>(signer::address_of(bob));
+        let bob_token_y_after_swap = coin::balance<TestSUSHI>(signer::address_of(bob));
+
+        let input_x = calc_input_using_output(output_y, initial_reserve_x, initial_reserve_y);
+
+        assert!(bob_token_x_before_swap == (bob_token_x_after_swap + (input_x as u64)), 205);
+        assert!(bob_token_y_before_swap == (bob_token_y_after_swap - (output_y as u64)), 206);
+
+
+        let bob_token_x_before_swap = coin::balance<TestBUSD>(signer::address_of(bob));
+        let bob_token_y_before_swap = coin::balance<TestSUSHI>(signer::address_of(bob));
+
+        let (reserve_x, reserve_y, _) = swap::token_reserves<TestBUSD, TestSUSHI>();
+        let input_y = calc_input_using_output(output_x, reserve_y, reserve_x);
+
+        //swap y to x
+        router::swap_exact_output<TestSUSHI, TestBUSD>(bob, output_x, input_y_max);
+
+        let bob_token_x_after_swap = coin::balance<TestBUSD>(signer::address_of(bob));
+        let bob_token_y_after_swap = coin::balance<TestSUSHI>(signer::address_of(bob));
+    
+
+        assert!(bob_token_x_before_swap == (bob_token_x_after_swap - (output_x as u64)), 207);
+        assert!(bob_token_y_before_swap == (bob_token_y_after_swap + (input_y as u64)), 208);
+
+    }
+
+                        
+    #[test(dev = @dev, admin = @default_admin, resource_account = @sushi, treasury = @0x23456, bob = @0x12345)]
+    #[expected_failure(abort_code=4)]
+    fun test_swap_exact_output_when_pair_not_exist(
+        dev: &signer,
+        admin: &signer,
+        resource_account: &signer,
+        treasury: &signer,
+        bob: &signer,
+
+    ) {
+        account::create_account_for_test(signer::address_of(bob));
+        
+
+        setup_test_with_genesis(dev, admin, treasury, resource_account);
+
+        let coin_owner = test_coins::init_coins();
+
+        test_coins::register_and_mint<TestSUSHI>(&coin_owner, bob, 100 * pow(10, 8));
+        test_coins::register_and_mint<TestBUSD>(&coin_owner, bob, 100 * pow(10, 8));
+        
+
+        let initial_reserve_x = 5 * pow(10, 8);
+        let initial_reserve_y = 10 * pow(10, 8);
+
+        let output_y = 166319299;
+        
+        let input_x_max = 1 * pow(10, 8);
+
+        
+        let bob_token_x_before_swap = coin::balance<TestBUSD>(signer::address_of(bob));
+        let bob_token_y_before_swap = coin::balance<TestSUSHI>(signer::address_of(bob));
+
+        //swap x to y but pair not created
+        router::swap_exact_output<TestBUSD, TestSUSHI>(bob, output_y, input_x_max);
+
+        let bob_token_x_after_swap = coin::balance<TestBUSD>(signer::address_of(bob));
+        let bob_token_y_after_swap = coin::balance<TestSUSHI>(signer::address_of(bob));
+
+        let input_x = calc_input_using_output(output_y, initial_reserve_x, initial_reserve_y);
+
+        assert!(bob_token_x_before_swap == (bob_token_x_after_swap + (input_x as u64)), 205);
+        assert!(bob_token_y_before_swap == (bob_token_y_after_swap - (output_y as u64)), 206);
+
+    }
+
+
+
+    //TODO:c-s
+
+    //set_admin
+    #[test(dev = @dev, admin = @default_admin, resource_account = @sushi, treasury = @0x23456, new_admin = @0x13456)]
+    fun test_set_admin(
+        dev: &signer,
+        admin: &signer,
+        resource_account: &signer,
+        treasury: &signer,
+        new_admin: &signer
+    ) {
+        account::create_account_for_test(signer::address_of(new_admin));
+
+        setup_test_with_genesis(dev, admin, treasury, resource_account);
+        
+        let new_admin_addr = signer::address_of(new_admin);
+        swap::set_admin(admin, new_admin_addr)
+    }
+
+    #[test(dev = @dev, admin = @default_admin, resource_account = @sushi, treasury = @0x23456, new_admin = @13456, bob = @24697)]
+    #[expected_failure(abort_code = 17)]
+    fun test_set_admin_with_wrong_admin_signer(
+        dev: &signer,
+        admin: &signer,
+        resource_account: &signer,
+        treasury: &signer,
+        new_admin: &signer,
+        bob: &signer,
+    ) {
+        account::create_account_for_test(signer::address_of(new_admin));
+        setup_test_with_genesis(dev, admin, treasury, resource_account);
+    
+        let new_admin_addr = signer::address_of(new_admin);
+        swap::set_admin(admin, new_admin_addr);
+
+        let bob_addr = signer::address_of(bob);
+        swap::set_admin(admin, bob_addr);
+    }
+
+    // set_fee_to
+    #[test(dev = @dev, admin = @default_admin, resource_account = @sushi, treasury = @0x23456, new_fee_to = @0x13456)]
+    fun test_set_fee__to_by_admin(
+        dev: &signer,
+        admin: &signer,
+        resource_account: &signer,
+        treasury: &signer,
+        new_fee_to: &signer
+    ) {
+        account::create_account_for_test(signer::address_of(new_fee_to));
+        setup_test_with_genesis(dev, admin, treasury, resource_account);
+        
+        let new_fee_to_addr = signer::address_of(new_fee_to);
+        swap::set_fee_to(admin, new_fee_to_addr);
+    }
+
+    #[test(dev = @dev, admin = @default_admin, resource_account = @sushi, treasury = @0x23456, new_fee_to = @0x34598, bob = @0x25986, alice = @0x14795)]
+    #[expected_failure(abort_code = 17)]
+    fun test_set_fee_admin_with_wrong_admin_signer(
+        dev: &signer,
+        admin: &signer,
+        resource_account: &signer,
+        treasury: &signer,
+        new_fee_to: &signer,
+        bob: &signer,
+        alice: &signer
+    ) {
+        account::create_account_for_test(signer::address_of(new_fee_to));
+        setup_test_with_genesis(dev, admin, treasury, resource_account);
+        let coin_owner = test_coins::init_coins();
+
+        //set fee to by actual admin
+        let new_fee_to_addr = signer::address_of(new_fee_to);
+        swap::set_fee_to(admin, new_fee_to_addr);
+
+        //set fee to by non admin
+        let bob_addr = signer::address_of(bob);
+        swap::set_fee_to(alice, bob_addr);
+    }
+
+    //withdraw_fee
+    #[test(dev = @dev, admin = @default_admin, resource_account = @sushi, treasury = @0x23456, new_fee_to = @0x13456)]
+    #[expected_failure(abort_code = 18)]
+    fun test_withdraw_fee_with_wrong_fee_to_admin(
+        dev: &signer,
+        admin: &signer,
+        resource_account: &signer,
+        treasury: &signer,
+        new_fee_to: &signer,
+    ) {
+        account::create_account_for_test(signer::address_of(new_fee_to));
+        setup_test_with_genesis(dev, admin, treasury, resource_account);
+        
+        let new_fee_to_addr = signer::address_of(new_fee_to);
+        swap::set_fee_to(admin, new_fee_to_addr);
+
+        swap::withdraw_fee<TestBUSD,TestSUSHI>(admin); 
+    }
+
+
+    
+    
+
+
+
+
+
 }
 

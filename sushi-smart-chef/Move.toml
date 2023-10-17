@@ -3,12 +3,20 @@ name = "SushiSmartChef"
 version = "0.0.1"
 
 [dependencies]
-AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework/", rev = "72421d32d77f1877ded478e96f5b95914de1df91" }
-AptosStdlib = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-stdlib/", rev = "72421d32d77f1877ded478e96f5b95914de1df91" }
+# AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework/", rev = "72421d32d77f1877ded478e96f5b95914de1df91" }
+# AptosStdlib = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-stdlib/", rev = "72421d32d77f1877ded478e96f5b95914de1df91" }
+
+AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework/", rev = "mainnet" }
+AptosStdlib = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-stdlib/", rev = "mainnet" }
 SushiPhantomTypes = { local = "../sushi-phantom-types" }
 
 [addresses]
-sushi = "fd1d8a523f1be89277ac0787ae3469312667e3d0b3f75a5f01bfc95530a2dc91"
-sushi_smart_chef_dev = "db879227e7075058e263d6957bb40ca3f4e5f66ea0691f723c5b9095d9cae253"
-sushi_smart_chef_default_admin = "db879227e7075058e263d6957bb40ca3f4e5f66ea0691f723c5b9095d9cae253"
+# sushi = "fd1d8a523f1be89277ac0787ae3469312667e3d0b3f75a5f01bfc95530a2dc91"
+# sushi_smart_chef_dev = "db879227e7075058e263d6957bb40ca3f4e5f66ea0691f723c5b9095d9cae253"
+# sushi_smart_chef_default_admin = "db879227e7075058e263d6957bb40ca3f4e5f66ea0691f723c5b9095d9cae253"
+# test_coin = "0x16"
+
+sushi = "0x52ec9423512d430c332d271b4d75129b6fa14045978e2d6dcc7ba8ee56b08983"
+sushi_smart_chef_dev = "0xb66102ac5e5f64a4f9bff3de7abee16f0481f2379943fd2e3db91916e7d7f355"
+sushi_smart_chef_default_admin = "0xe866a422729b8f30d37ab00c6568e7c01a6980b1f9a0a03b53cc7b4b7bddfc11"
 test_coin = "0x16"

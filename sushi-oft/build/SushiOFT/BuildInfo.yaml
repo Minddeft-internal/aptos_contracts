@@ -23,7 +23,7 @@ compiled_package_info:
     test: "0000000000000000000000000000000000000000000000000000000000000008"
     vm_reserved: "0000000000000000000000000000000000000000000000000000000000000000"
     zro: 1759cc0d3161f1eb79f65847d4feb9d1f74fb79014698a23b16b28b9cd4c37e3
-  source_digest: 4C5EAA86EDD4A742D70F8623190853E3B86A697E07E254B22B69DFDE718E9E55
+  source_digest: 4573733783DF461FBB4E779341F61FE6294951135387AD0099FEB281922E75D2
   build_flags:
     dev_mode: false
     test_mode: false
@@ -31,12 +31,27 @@ compiled_package_info:
     generate_abis: false
     install_dir: ~
     force_recompilation: false
-    additional_named_addresses:
-      sushi_oft: 28b17c976eeb367998b89b4303b575ee590ef9bb03d1d9dbbd0fd9ce9040291c
+    additional_named_addresses: {}
     architecture: ~
     fetch_deps_only: false
     skip_fetch_latest_git_deps: false
-    bytecode_version: ~
+    compiler_config:
+      bytecode_version: ~
+      known_attributes:
+        - bytecode_instruction
+        - deprecated
+        - event
+        - expected_failure
+        - legacy_entry_fun
+        - native_interface
+        - resource_group
+        - resource_group_member
+        - test
+        - test_only
+        - verify_only
+        - view
+      skip_attribute_checks: true
+      compiler_version: ~
 dependencies:
   - AptosFramework
   - AptosStdlib
