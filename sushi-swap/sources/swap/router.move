@@ -6,7 +6,6 @@ module sushi::router {
     use std::option;
     
 
-
     //
     // Errors.
     //

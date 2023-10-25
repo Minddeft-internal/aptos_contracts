@@ -35,6 +35,7 @@ module sushi::smart_chef {
     const ERROR_REWARD_MAX: u64 = 16;
     const ERROR_WRONG_UID: u64 = 17;
     const ERROR_SAME_TOKEN: u64 = 18;
+    const ERROR_POOL_NOT_STARTED: u64 = 19;
 
     struct SmartChefMetadata has key {
         signer_cap: account::SignerCapability,
@@ -202,6 +203,7 @@ module sushi::smart_chef {
         assert!(exists<PoolInfo<StakeToken, RewardToken, UID>>(RESOURCE_ACCOUNT), ERROR_POOL_NOT_EXIST);
         let pool_info = borrow_global_mut<PoolInfo<StakeToken, RewardToken, UID>>(RESOURCE_ACCOUNT);
         let now = timestamp::now_seconds();
+        assert!(now >= pool_info.start_timestamp, ERROR_POOL_NOT_STARTED);
         assert!(pool_info.end_timestamp > now, ERROR_POOL_END);
         if (!exists<UserInfo<StakeToken, RewardToken, UID>>(account_address)) {
             move_to(account, UserInfo<StakeToken, RewardToken, UID> {

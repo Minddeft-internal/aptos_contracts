@@ -1,0 +1,19 @@
+[package]
+name = "SushiMultisigWallet"
+version = "0.0.1"
+
+[dependencies]
+AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework/", rev = "83641d3f083762f31700060e5e95fbb1cbc28bf0" }
+AptosStdlib = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-stdlib/", rev = "83641d3f083762f31700060e5e95fbb1cbc28bf0" }
+
+[addresses]
+sushi_multisig_wallet = "37428141bff87d05956c1cc7362b743de28a701da1ca66e4d79cb022bfcb01b2"
+sushi_multisig_wallet_dev = "088abe925e47e0872d15b50561846907a2361e6011980cee9c8ecafb15ca633a"
+
+# For testing
+# sushi_multisig_wallet = "0x4ab78195e8ba0d004b1f6e3216a9f4992f06286491d4b53f6447ec2294f9729d"
+# sushi_multisig_wallet_dev = "1f4fa0514209d704f527905fbe4507f3ee1e17fa1e1f94715dd192177bfb0c62"
+# multisig_wallet = "0xab36da4425a362a6d248a9e0e51b0ab05b20dd27966dc0ec90ec3be9c03bc585"
+# multisig_wallet_owner1 = "c26b4d391801b438e7c33c87dc29ea7aebae4619cd089c2b88f03d71c5db46df"
+# multisig_wallet_owner2 = "0415254fd345376da97dfecfdbdce1633cb74715aeca50d9d5c904bba7d842aa"
+# multisig_wallet_owner3 = "795f79ab8dca3c33b154dcc876d7434368bd5a0b52210d5cd3074be89e16238f"
