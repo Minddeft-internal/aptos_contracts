@@ -2572,5 +2572,42 @@ module sushi::smart_chef_test {
         set_admin(bob, signer::address_of(alice));
     }
 
+    //TODO: New testcases
+
+    #[test(dev = @sushi_smart_chef_dev, admin = @sushi_smart_chef_default_admin, resource_account = @sushi, treasury = @0x23456, bob = @0x12345, alice = @0x12346)]
+    #[expected_failure(abort_code = 19)]
+    fun test_deposit_before_start_time(
+        dev: &signer,
+        admin: &signer,
+        resource_account: &signer,
+        treasury: &signer,
+        bob: &signer,
+        alice: &signer,
+    ) {
+        account::create_account_for_test(signer::address_of(bob));
+        account::create_account_for_test(signer::address_of(alice));
+
+        setup_test(dev, admin, treasury, resource_account);
+
+        let coin_owner = test_coins::init_coins();
+        // test_coins::register_and_mint<TestBUSD>(&coin_owner, admin, 200 * pow(10, 8));
+        // test_coins::register_and_mint<TestSUSHI>(&coin_owner, alice, 200 * pow(10, 8));
+
+        test_coins::register_and_mint<TestSUSHI>(&coin_owner, bob, 200 * pow(10, 8));
+        test_coins::register_and_mint<TestSUSHI>(&coin_owner, bob, 200 * pow(10, 8));
+
+        let start_time = timestamp::now_seconds() + 1000000;
+        let end_time = start_time + 100;
+        create_pool<TestSUSHI, TestBUSD, U0>(admin, 1, start_time, end_time, 10, 10);
+        
+
+        // timestamp::update_global_time_for_test_secs(start_time + 10);
+
+        let stake_amount = 1 * pow(10, 8);
+
+        deposit<TestSUSHI, TestBUSD, U0>(bob, stake_amount);
+    }
+
+
 
 }

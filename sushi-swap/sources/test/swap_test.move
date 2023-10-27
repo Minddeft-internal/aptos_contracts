@@ -28,7 +28,7 @@ module sushi::swap_test {
         account::create_account_for_test(signer::address_of(dev));
         account::create_account_for_test(signer::address_of(admin));
         account::create_account_for_test(signer::address_of(treasury));
-        resource_account::create_resource_account(dev, x"1234", x"b66102ac5e5f64a4f9bff3de7abee16f0481f2379943fd2e3db91916e7d7f355");
+        resource_account::create_resource_account(dev, b"sushi_swap", x"a86eca633b2d3c389ac6bd9d7591294a9aeb52c11395ffa539d883a56d5e2c4d");
         initialize(resource_account);
         swap::set_fee_to(admin, signer::address_of(treasury))
     }

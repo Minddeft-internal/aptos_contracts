@@ -11,6 +11,8 @@ AptosStdlib = {git = "https://github.com/aptos-labs/aptos-core.git", subdir = "a
 sushi = "608666b9e1c958e0cda5aeaef77cadf207a1fe63430bd2c7a6863693371ca483"
 dev = "a86eca633b2d3c389ac6bd9d7591294a9aeb52c11395ffa539d883a56d5e2c4d"
 zero = "0000000000000000000000000000000000000000000000000000000000000000"
+#Use multi sign address as a default admin
 default_admin = "9b32dac913e53307b776a9c26ac439955b6c5004d04c2ee86376b3fe9fabf9e9"
 test_coin = "0x16"
+
 
