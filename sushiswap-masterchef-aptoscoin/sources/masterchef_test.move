@@ -1533,6 +1533,13 @@ module sushi_masterchef::masterchef_test {
         masterchef::update_pool(0);
     }
 
+    #[test(dev = @masterchef_origin, admin= @msterchef_admin, resource_account = @sushi_masterchef)]
+    #[expected_failure]
+    fun test_update_pool_revert_if_pool_not_exist(dev: &signer, admin: &signer, resource_account: &signer) {
+        before_each(dev, admin, resource_account);
+        before_add_pool<TestSUSHI>(resource_account, admin, b"SUSHI", b"SUSHI", 3000, false, true);
+        masterchef::update_pool(1);
+    }
 
 
     #[test_only]

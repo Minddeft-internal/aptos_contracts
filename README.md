@@ -1,1 +1,2 @@
-# aptos_contracts
+# Aptos Contracts
+

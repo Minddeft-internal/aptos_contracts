@@ -9,7 +9,7 @@ module sushi::smart_chef_test {
     use aptos_framework::coin;
     use std::signer;
     use sushi_phantom_types::uints::{U0, U2};
-    use sushi::smart_chef::{initialize, create_pool, add_reward, update_reward_per_second, deposit, get_pool_info, withdraw, emergency_reward_withdraw, stop_reward, emergency_withdraw, get_user_stake_amount, update_pool_limit_per_user, update_start_and_end_timestamp, set_admin, get_pending_reward};
+    use sushi::smart_chef::{initialize, create_pool, add_reward, update_reward_per_second, deposit, get_pool_info, withdraw, emergency_reward_withdraw, stop_reward, emergency_withdraw, get_user_stake_amount, update_pool_limit_per_user, update_start_and_end_timestamp, set_admin, get_pending_reward,upgrade_contract};
     use test_coin::test_coins::{Self, TestSUSHI, TestBUSD, Test30DEC, TestUSDC};
     use std::debug;
 
@@ -2590,9 +2590,7 @@ module sushi::smart_chef_test {
         setup_test(dev, admin, treasury, resource_account);
 
         let coin_owner = test_coins::init_coins();
-        // test_coins::register_and_mint<TestBUSD>(&coin_owner, admin, 200 * pow(10, 8));
-        // test_coins::register_and_mint<TestSUSHI>(&coin_owner, alice, 200 * pow(10, 8));
-
+        
         test_coins::register_and_mint<TestSUSHI>(&coin_owner, bob, 200 * pow(10, 8));
         test_coins::register_and_mint<TestSUSHI>(&coin_owner, bob, 200 * pow(10, 8));
 
@@ -2601,13 +2599,131 @@ module sushi::smart_chef_test {
         create_pool<TestSUSHI, TestBUSD, U0>(admin, 1, start_time, end_time, 10, 10);
         
 
-        // timestamp::update_global_time_for_test_secs(start_time + 10);
-
         let stake_amount = 1 * pow(10, 8);
 
         deposit<TestSUSHI, TestBUSD, U0>(bob, stake_amount);
     }
 
 
+    //CBS
+    #[test(dev = @sushi_smart_chef_dev, admin = @sushi_smart_chef_default_admin, resource_account = @sushi, treasury = @0x23456, bob = @0x12345, alice = @0x12346)]
+    #[expected_failure(abort_code = 8)]
+    fun test_deposit_pool_limit_exceeded_within_limit_time(
+        dev: &signer,
+        admin: &signer,
+        resource_account: &signer,
+        treasury: &signer,
+        bob: &signer,
+        alice: &signer,
+    ) {
+        account::create_account_for_test(signer::address_of(bob));
+        account::create_account_for_test(signer::address_of(alice));
+
+        setup_test(dev, admin, treasury, resource_account);
+
+        let coin_owner = test_coins::init_coins();
+        test_coins::register_and_mint<TestBUSD>(&coin_owner, admin, 200 * pow(10, 8));
+        test_coins::register_and_mint<TestSUSHI>(&coin_owner, alice, 200 * pow(10, 8));
+        test_coins::register_and_mint<TestSUSHI>(&coin_owner, bob, 200 * pow(10, 8));
+
+        let start_time = timestamp::now_seconds() + 10;
+        let end_time = start_time + 100;
+        let reward_per_second = 1;
+        let time_for_user_limit = 20;
+        let pool_limit_per_user = 10;
+        let total_reward = 100;
+        create_pool<TestSUSHI, TestBUSD, U0>(admin, reward_per_second, start_time, end_time, pool_limit_per_user, time_for_user_limit);
+        add_reward<TestSUSHI, TestBUSD, U0>(admin, total_reward);
+
+        let first_stake_amount = pool_limit_per_user;
+        let alice_cake_before_balance = coin::balance<TestSUSHI>(signer::address_of(alice));
+        timestamp::update_global_time_for_test_secs(start_time);
+        deposit<TestSUSHI, TestBUSD, U0>(alice, first_stake_amount);
+        let second_stake_amount = 1;
+        timestamp::update_global_time_for_test_secs(start_time + time_for_user_limit - 1);
+        deposit<TestSUSHI, TestBUSD, U0>(alice, second_stake_amount);
+    }
+
+
+
+    #[test(dev = @sushi_smart_chef_dev, admin = @sushi_smart_chef_default_admin, resource_account = @sushi, treasury = @0x23456, alice = @0x12346)]
+    #[expected_failure(abort_code=14)]
+    fun test_stop_reward_revert_when_deposit_after_stop_reward(
+        dev: &signer,
+        admin: &signer,
+        resource_account: &signer,
+        treasury: &signer,
+        alice: &signer,
+    ) {
+        account::create_account_for_test(signer::address_of(alice));
+
+        setup_test(dev, admin, treasury, resource_account);
+
+        let coin_owner = test_coins::init_coins();
+        test_coins::register_and_mint<TestBUSD>(&coin_owner, admin, 200 * pow(10, 8));
+        test_coins::register_and_mint<TestSUSHI>(&coin_owner, alice, 200 * pow(10, 8));
+
+        let start_time = timestamp::now_seconds() + 10;
+        let end_time = start_time + 100;
+        let reward_per_second = 1;
+        let time_for_user_limit = 20;
+        let pool_limit_per_user = 10;
+        let total_reward = 100;
+        create_pool<TestSUSHI, TestBUSD, U0>(admin, reward_per_second, start_time, end_time, pool_limit_per_user, time_for_user_limit);
+        add_reward<TestSUSHI, TestBUSD, U0>(admin, total_reward);
+
+        timestamp::update_global_time_for_test_secs(start_time);
+        let stake_amount = 10;
+        deposit<TestSUSHI, TestBUSD, U0>(alice, stake_amount);
+        timestamp::update_global_time_for_test_secs(start_time + time_for_user_limit);
+        stop_reward<TestSUSHI, TestBUSD, U0>(admin);
+        deposit<TestSUSHI, TestBUSD, U0>(alice, stake_amount);  
+    }
+
+    #[test(dev = @sushi_smart_chef_dev, admin = @sushi_smart_chef_default_admin, resource_account = @sushi, treasury = @0x23456, bob = @0x12345, alice = @0x12346)]
+    #[expected_failure(abort_code = 0)]
+    fun test_set_admin_previous_admin_does_not_keep_privileges(
+        dev: &signer,
+        admin: &signer,
+        resource_account: &signer,
+        treasury: &signer,
+        bob: &signer,
+        alice: &signer,
+    ) {
+        account::create_account_for_test(signer::address_of(bob));
+        account::create_account_for_test(signer::address_of(alice));
+
+        setup_test(dev, admin, treasury, resource_account);
+
+        let coin_owner = test_coins::init_coins();
+        test_coins::register_and_mint<TestBUSD>(&coin_owner, admin, 200 * pow(10, 8));
+        test_coins::register_and_mint<TestSUSHI>(&coin_owner, alice, 200 * pow(10, 8));
+        test_coins::register_and_mint<TestSUSHI>(&coin_owner, bob, 200 * pow(10, 8));
+        //current admin as signer
+        set_admin(admin, signer::address_of(alice));
+        //previous admin as signer
+        set_admin(admin, signer::address_of(bob));
+    }
+
+    #[test(dev = @sushi_smart_chef_dev, admin = @sushi_smart_chef_default_admin, resource_account = @sushi, treasury = @0x23456, bob = @0x12345, alice = @0x12346)]
+    #[expected_failure(abort_code=0)]
+    fun test_upgrade_contract_with_wrong_admin(
+        dev: &signer,
+        admin: &signer,
+        resource_account: &signer,
+        treasury: &signer,
+        bob: &signer,
+        alice: &signer,
+    ) {
+        account::create_account_for_test(signer::address_of(bob));
+        account::create_account_for_test(signer::address_of(alice));
+
+        setup_test(dev, admin, treasury, resource_account);
+
+        let metadata_serialized: vector<u8> = vector[];
+        let code: vector<vector<u8>> = vector[vector[]];
+
+        upgrade_contract(dev,metadata_serialized,code);
+    }
 
 }
