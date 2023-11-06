@@ -2268,7 +2268,35 @@ module sushi::swap_test {
         
     }
 
-    
+    //CBS
+    #[test(dev = @dev, admin = @default_admin, resource_account = @sushi, treasury = @0x23456, bob = @0x12345, alice = @0x12346)]
+    #[expected_failure(abort_code = 65542)]
+    fun test_remove_liquidity_with_not_enough_lp(
+        dev: &signer,
+        admin: &signer,
+        resource_account: &signer,
+        treasury: &signer,
+        bob: &signer,
+        alice: &signer,
+    ) {
+        account::create_account_for_test(signer::address_of(bob));
+        account::create_account_for_test(signer::address_of(alice));
+
+        setup_test_with_genesis(dev, admin, treasury, resource_account);
+
+        let coin_owner = test_coins::init_coins();
+
+        test_coins::register_and_mint<TestSUSHI>(&coin_owner, bob, 1000 * pow(10, 8));
+        test_coins::register_and_mint<TestBUSD>(&coin_owner, bob, 1000 * pow(10, 8));
+        test_coins::register_and_mint<TestSUSHI>(&coin_owner, alice, 1000 * pow(10, 8));
+
+        let initial_reserve_x = 100 * pow(10, 8);
+        let initial_reserve_y = 100 * pow(10, 8);
+        let out_liquidity = 101 * pow(10, 8);
+        router::add_liquidity<TestSUSHI, TestBUSD>(bob, initial_reserve_x, initial_reserve_y, 0, 0);
+
+        router::remove_liquidity<TestSUSHI, TestBUSD>(bob, out_liquidity, 0, 0);
+    }
 
 
     #[test(dev = @dev, admin = @default_admin, resource_account = @sushi, treasury = @0x23456, bob = @0x12341)]
@@ -2555,7 +2583,7 @@ module sushi::swap_test {
 
     // set_fee_to
     #[test(dev = @dev, admin = @default_admin, resource_account = @sushi, treasury = @0x23456, new_fee_to = @0x13456)]
-    fun test_set_fee__to_by_admin(
+    fun test_set_fee_to_by_admin(
         dev: &signer,
         admin: &signer,
         resource_account: &signer,
@@ -2612,11 +2640,23 @@ module sushi::swap_test {
         swap::withdraw_fee<TestBUSD,TestSUSHI>(admin); 
     }
 
+    #[test(dev = @dev, admin = @default_admin, resource_account = @sushi, treasury = @0x23456, new_fee_to = @0x13456)]
+    #[expected_failure(abort_code = 17)]
+    fun test_upgrade_contract_with_wrong_admin(
+        dev: &signer,
+        admin: &signer,
+        resource_account: &signer,
+        treasury: &signer,
+        new_fee_to: &signer,
+    ) {
+        account::create_account_for_test(signer::address_of(new_fee_to));
+        setup_test_with_genesis(dev, admin, treasury, resource_account);
+        
+        let metadata_serialized: vector<u8> = vector[1,2,3,4];
+        let code: vector<vector<u8>> = vector[vector[1]];
 
-    
-    
-
-
+        swap::upgrade_swap(dev,metadata_serialized,code);
+    }
 
 
 

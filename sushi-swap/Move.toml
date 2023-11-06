@@ -8,11 +8,11 @@ AptosFramework = {git = "https://github.com/aptos-labs/aptos-core.git", subdir =
 AptosStdlib = {git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-stdlib/", rev = "72421d32d77f1877ded478e96f5b95914de1df91"}
 
 [addresses]
-sushi = "608666b9e1c958e0cda5aeaef77cadf207a1fe63430bd2c7a6863693371ca483"
-dev = "a86eca633b2d3c389ac6bd9d7591294a9aeb52c11395ffa539d883a56d5e2c4d"
+sushi = "0x9adfcc0f47c006ebccad98109a33986280bbdef82a212ae15c97292a2981d9e1"
+dev = "0xe89e06bc76ef14067cc64ae302bd55ed01488a549a287a305ba7bc147e0f4307"
 zero = "0000000000000000000000000000000000000000000000000000000000000000"
 #Use multi sign address as a default admin
-default_admin = "9b32dac913e53307b776a9c26ac439955b6c5004d04c2ee86376b3fe9fabf9e9"
+default_admin = "0xf5e747e2fa1bcf63e3998b9bd0722c09c4c5e8cb7842a4f8321e39137a029a2f"
 test_coin = "0x16"
 
 

@@ -18,6 +18,8 @@ file.
     ```
    
     ```
+    // Run this command only if you are not using multisig account other wise paste multisig account address in msterchef_admin
+    
     aptos init --profile msterchef_admin
     ```
   
@@ -47,7 +49,8 @@ command.
 
 <br>
 
-### Add New Pool
+### Add New Pool Command - 
+
 
 Run below command :
 
@@ -59,6 +62,8 @@ aptos move run --function-id sushi_masterchef(address)::masterchef::add_pool --p
 **NOTE**
 
 Remove instruction which is given in parentheses.
+
+if you're using normal admin account then use above command to add pool.
 
 ---
 
@@ -119,6 +124,7 @@ Remove instruction which is given in parentheses.
 
 ### Set Pool
 
+
 Run below command :
 
 ```
@@ -129,5 +135,7 @@ aptos move run --function-id sushi_masterchef(address)::masterchef::set_pool --p
 **NOTE**
 
 Remove instruction which is given in parentheses.
+
+if you're using normal admin account then use above command to set pool.
 
 ---

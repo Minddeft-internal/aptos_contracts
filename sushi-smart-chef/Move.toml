@@ -13,3 +13,5 @@ sushi_smart_chef_dev = "db879227e7075058e263d6957bb40ca3f4e5f66ea0691f723c5b9095
 #Use multisig address as a sushi_smart_chef_default_admin
 sushi_smart_chef_default_admin = "db879227e7075058e263d6957bb40ca3f4e5f66ea0691f723c5b9095d9cae253"
 test_coin = "0x16"
+
+
